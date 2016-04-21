@@ -920,7 +920,17 @@ void DocumentImporter::write_profile_COMMON(COLLADAFW::EffectCommon *ef, Materia
 		}
 	}
 	
-	if (ef->getOpacity().isTexture()) {
+	// TRANSPARENT
+	// color
+	if (ef->getOpacity().isColor()) {
+		col = ef->getOpacity().getColor();
+		if (col != COLLADAFW::Color::WHITE) {
+			ma->alpha = col.getAlpha();
+			ma->mode |= MA_ZTRANSP | MA_TRANSP;
+		}
+	}
+	// texture
+	else if (ef->getOpacity().isTexture()) {
 		COLLADAFW::Texture ctex = ef->getOpacity().getTexture();
 		mtex = create_texture(ef, ctex, ma, i, texindex_texarray_map);
 		if (mtex != NULL) {
@@ -930,22 +940,6 @@ void DocumentImporter::write_profile_COMMON(COLLADAFW::EffectCommon *ef, Materia
 			ma->mode |= MA_ZTRANSP | MA_TRANSP;
 		}
 	}
-	// TRANSPARENT
-	// color
-#if 0
-	if (ef->getOpacity().isColor()) {
-		// XXX don't know what to do here
-	}
-	// texture
-	else if (ef->getOpacity().isTexture()) {
-		ctex = ef->getOpacity().getTexture();
-		if (mtex != NULL) mtex->mapto &= MAP_ALPHA;
-		else {
-			mtex = create_texture(ef, ctex, ma, i, texindex_texarray_map);
-			if (mtex != NULL) mtex->mapto = MAP_ALPHA;
-		}
-	}
-#endif
 	material_texture_mapping_map[ma] = texindex_texarray_map;
 }
 
